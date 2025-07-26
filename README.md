@@ -52,6 +52,7 @@
 -   **Chat bubbles**: Sleek design to differentiate your messages from AI responses.
 -   **Easy theme switching**: Change themes via a floating button.
 -   **Wide compatibility**: GPThemes supports the latest ChatGPT UI, `GPT-4o`, as well as previous versions, ensuring a seamless experience for all users.
+-   **Backup and restore**: Export all customization settings to share or keep a backup, and import them later with a single click.
 
 ## Installation
 
