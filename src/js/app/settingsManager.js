@@ -140,13 +140,7 @@ function handleTabsSwitching() {
         })
 }
 
-async function exportSettings() {
-        const localData = {
-                theme: localStorage.getItem('theme') || null,
-                isOLED: localStorage.getItem('isOLED') || null,
-        }
-
-        const syncKeys = [
+const SYNC_KEYS = [
                 'accent_light',
                 'accent_dark',
                 'fontFamily',
@@ -161,7 +155,14 @@ async function exportSettings() {
                 FLOATING_BTN_VISIBLE_KEY,
         ]
 
-        const syncData = await browser.storage.sync.get(syncKeys)
+async function exportSettings() {
+        const localData = {}
+        const storedTheme = localStorage.getItem('theme')
+        if (storedTheme !== null) localData.theme = storedTheme
+        const storedOLED = localStorage.getItem('isOLED')
+        if (storedOLED !== null) localData.isOLED = storedOLED
+
+        const syncData = await browser.storage.sync.get(SYNC_KEYS)
 
         const data = { local: localData, sync: syncData }
 
@@ -170,7 +171,7 @@ async function exportSettings() {
                 alert('GPThemes settings copied to clipboard')
         } catch (err) {
                 console.error('Export failed:', err)
-                alert('Failed to export settings')
+                prompt('Copy settings manually:', JSON.stringify(data))
         }
 }
 
@@ -180,12 +181,22 @@ async function importSettings() {
 
         try {
                 const data = JSON.parse(input)
+
                 if (data.local) {
-                        if (data.local.theme !== undefined) localStorage.setItem('theme', data.local.theme)
-                        if (data.local.isOLED !== undefined) localStorage.setItem('isOLED', data.local.isOLED)
+                        if (data.local.theme !== undefined) {
+                                localStorage.setItem('theme', data.local.theme)
+                        }
+                        if (data.local.isOLED !== undefined) {
+                                localStorage.setItem('isOLED', data.local.isOLED)
+                        }
                 }
-                if (data.sync) {
-                        await browser.storage.sync.set(data.sync)
+
+                if (data.sync && typeof data.sync === 'object') {
+                        const sanitized = {}
+                        for (const key of SYNC_KEYS) {
+                                if (key in data.sync) sanitized[key] = data.sync[key]
+                        }
+                        await browser.storage.sync.set(sanitized)
                 }
                 location.reload()
         } catch (err) {
