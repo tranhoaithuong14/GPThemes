@@ -1,3 +1,4 @@
+import browser from 'webextension-polyfill'
 import { renderColorsTab, resetAllAccents, init as initColors } from './mainColors.js'
 import { renderFontsTab, handleFontsListeners, init as initFonts } from './mainFonts.js'
 import { renderWidthsTab, handleWidthsListeners, init as initWidths } from './mainWidths.js'
