@@ -1,4 +1,4 @@
-import browser from 'webextension-polyfill'
+import browser from '../browser.js'
 import { closeSettings, $settings } from './settingsManager.js'
 import { renderFontSmallCard, renderFontBigCard } from './components/renderFonts'
 import { renderButton } from './components/renderButtons'

@@ -1,4 +1,4 @@
-import browser from 'webextension-polyfill'
+import browser from '../browser.js'
 import { renderSliderCard } from './components/renderSwitch'
 import { renderToggle } from './components/renderToggles'
 import { icon_full_width, icon_sync } from './components/icons'

@@ -1,4 +1,4 @@
-import browser from 'webextension-polyfill'
+import browser from '../browser.js'
 // import { toggleFloatingBtnVisibility, FLOATING_CLASS_NAME } from './floatingBtn'
 import { toggleFloatingBtnVisibility } from './floatingBtn'
 

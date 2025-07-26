@@ -1,4 +1,4 @@
-import browser from 'webextension-polyfill'
+import browser from '../browser.js'
 import { icon_align_left, icon_align_center, icon_align_right } from './components/icons'
 
 // Configuration object - single source of truth
