@@ -1,4 +1,4 @@
-import browser from 'webextension-polyfill'
+import browser from '../browser.js'
 import { renderToggle } from './components/renderToggles'
 
 // Configuration object with all bubble types and their properties

@@ -1,4 +1,4 @@
-import browser from 'webextension-polyfill'
+import browser from '../../js/browser.js'
 import { renderToggle } from '../../js/app/components/renderToggles'
 import { FLOATING_BTN_VISIBLE_KEY } from '../../js/app/config'
 

@@ -1,4 +1,4 @@
-import browser from 'webextension-polyfill'
+import browser from './browser.js'
 
 // Constants
 const BADGE_COLOR = '#ca93fb'

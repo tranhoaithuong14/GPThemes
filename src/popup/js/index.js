@@ -1,4 +1,4 @@
-import browser from 'webextension-polyfill'
+import browser from '../../js/browser.js'
 import { EXT_CURRENT_VERSION, CHANGELOG_URL } from '../../js/app/config'
 import { RELEASE_CHANGES } from './changes'
 import { setupFloatingBtnToggle } from './toggleGpthemes'
