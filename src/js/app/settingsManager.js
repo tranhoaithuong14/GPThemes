@@ -2,6 +2,8 @@ import { renderColorsTab, resetAllAccents, init as initColors } from './mainColo
 import { renderFontsTab, handleFontsListeners, init as initFonts } from './mainFonts.js'
 import { renderWidthsTab, handleWidthsListeners, init as initWidths } from './mainWidths.js'
 import { handleScrolldownListeners, init as initScrolldown } from './scrolldown.js'
+import { renderButton } from './components/renderButtons.js'
+import { FLOATING_BTN_VISIBLE_KEY } from './config.js'
 
 // Elements cache
 let $settings = null
@@ -28,21 +30,25 @@ async function createSettings() {
 				<span class="font-semibold">GPThemes</span> Customization
 			</h2>
 		</header>
-		<main>
-			<div class="tabs">
-				<div class="tab-buttons p-1 font-semibold mb-5">
-					<button class="tab-button py-2 px-4 focus:outline-none text-center active">Color</button>
-					<button class="tab-button py-2 px-4 focus:outline-none text-center">Font</button>
-					<button class="tab-button py-2 px-4 focus:outline-none text-center">Layout</button>
-				</div>
-				<div class="tab-content">
-					<div class="tab-pane active" id="tab-colors">${renderColorsTab()}</div>
-					<div class="tab-pane hidden" id="tab-fonts">${renderFontsTab()}</div>
-					<div class="tab-pane hidden" id="tab-assets">${renderWidthsTab()}</div>
-				</div>
-			</div>
-		</main>
-	`
+                <main>
+                        <div class="tabs">
+                                <div class="tab-buttons p-1 font-semibold mb-5">
+                                        <button class="tab-button py-2 px-4 focus:outline-none text-center active">Color</button>
+                                        <button class="tab-button py-2 px-4 focus:outline-none text-center">Font</button>
+                                        <button class="tab-button py-2 px-4 focus:outline-none text-center">Layout</button>
+                                </div>
+                                <div class="tab-content">
+                                        <div class="tab-pane active" id="tab-colors">${renderColorsTab()}</div>
+                                        <div class="tab-pane hidden" id="tab-fonts">${renderFontsTab()}</div>
+                                        <div class="tab-pane hidden" id="tab-assets">${renderWidthsTab()}</div>
+                                </div>
+                        </div>
+                </main>
+                <footer class="mt-4 grid grid-cols-2 gap-2">
+                        ${renderButton({ id: 'exportSettings', content: 'Export Settings', className: 'btn-primary' })}
+                        ${renderButton({ id: 'importSettings', content: 'Import Settings', className: 'btn-primary' })}
+                </footer>
+        `
 
 	// Add to DOM and set up listeners
 	document.body.appendChild(gpthSettings)
@@ -68,14 +74,17 @@ function cacheElements(gpthSettings) {
 }
 
 function addListeners() {
-	handleTabsSwitching()
-	handleFontsListeners()
-	handleWidthsListeners()
-	handleScrolldownListeners()
+        handleTabsSwitching()
+        handleFontsListeners()
+        handleWidthsListeners()
+        handleScrolldownListeners()
 
-	if ($resetAllAccentsBtn) {
-		$resetAllAccentsBtn.addEventListener('click', resetAllAccents)
-	}
+        if ($resetAllAccentsBtn) {
+                $resetAllAccentsBtn.addEventListener('click', resetAllAccents)
+        }
+
+        $settings.querySelector('#exportSettings')?.addEventListener('click', exportSettings)
+        $settings.querySelector('#importSettings')?.addEventListener('click', importSettings)
 }
 
 function openSettings() {
@@ -109,12 +118,12 @@ function handleClickOutsideSettings(e) {
 }
 
 function handleTabsSwitching() {
-	if (!$tabButtons || !$tabButtons.length) return
+        if (!$tabButtons || !$tabButtons.length) return
 
 	// Use cached elements instead of querying on each click
-	$tabButtons.forEach((tab, index) => {
-		tab.addEventListener('click', () => {
-			const activeTabIndex = $tabButtons.findIndex((t) => t.classList.contains(ACTIVE_CLASS))
+        $tabButtons.forEach((tab, index) => {
+                tab.addEventListener('click', () => {
+                        const activeTabIndex = $tabButtons.findIndex((t) => t.classList.contains(ACTIVE_CLASS))
 
 			// Skip if the clicked tab is already active
 			if (activeTabIndex === index) return
@@ -125,9 +134,63 @@ function handleTabsSwitching() {
 
 			// Update tab panes
 			$tabPanes[activeTabIndex].classList.add(HIDDEN_CLASS)
-			$tabPanes[index].classList.remove(HIDDEN_CLASS)
-		})
-	})
+                        $tabPanes[index].classList.remove(HIDDEN_CLASS)
+                })
+        })
+}
+
+async function exportSettings() {
+        const localData = {
+                theme: localStorage.getItem('theme') || null,
+                isOLED: localStorage.getItem('isOLED') || null,
+        }
+
+        const syncKeys = [
+                'accent_light',
+                'accent_dark',
+                'fontFamily',
+                'fontSize',
+                'lineHeight',
+                'letterSpacing',
+                'widthSettings',
+                'syncEnabled',
+                'fullWidthEnabled',
+                'scrollButtonPosition',
+                'chatBubblesState',
+                FLOATING_BTN_VISIBLE_KEY,
+        ]
+
+        const syncData = await browser.storage.sync.get(syncKeys)
+
+        const data = { local: localData, sync: syncData }
+
+        try {
+                await navigator.clipboard.writeText(JSON.stringify(data))
+                alert('GPThemes settings copied to clipboard')
+        } catch (err) {
+                console.error('Export failed:', err)
+                alert('Failed to export settings')
+        }
+}
+
+async function importSettings() {
+        const input = prompt('Paste GPThemes settings JSON:')
+        if (!input) return
+
+        try {
+                const data = JSON.parse(input)
+                if (data.local) {
+                        if (data.local.theme !== undefined) localStorage.setItem('theme', data.local.theme)
+                        if (data.local.isOLED !== undefined) localStorage.setItem('isOLED', data.local.isOLED)
+                }
+                if (data.sync) {
+                        await browser.storage.sync.set(data.sync)
+                }
+                location.reload()
+        } catch (err) {
+                console.error('Import failed:', err)
+                alert('Invalid settings data')
+        }
 }
 
 export { createSettings, openSettings, closeSettings, $settings, SETTINGS_OPEN_CLASS }
